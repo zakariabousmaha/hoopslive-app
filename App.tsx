@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Menu, Search, Filter, Loader2, Wifi, WifiOff, CalendarDays, ChevronLeft, ChevronRight, X, User } from 'lucide-react';
-import { LeftSidebar } from './components/LeftSidebar';
+import { Menu, Search, Filter, Loader2, Wifi, WifiOff, CalendarDays, ChevronLeft, ChevronRight, X, User, Trophy, Calendar, Star, CircleDot } from 'lucide-react';
 import { MobileNav } from './components/MobileNav';
 import { LeagueHeader } from './components/LeagueHeader';
 import { MatchRow } from './components/MatchRow';
@@ -13,6 +12,133 @@ import { TeamLogo } from './components/TeamLogo';
 import { MOCK_LEAGUES } from './constants';
 import { Match, League, MatchStatus, TeamSearchResult } from './types';
 import { getMatches, searchTeams, getTeamSchedule } from './services/basketballService';
+
+// --- INTERNAL COMPONENTS (Moved here to fix Vercel Build Errors) ---
+
+interface LeftSidebarProps {
+  leagues: League[];
+  isOpen: boolean;
+  toggleSidebar: () => void;
+  activeLeagueId: string | null;
+  onSelectLeague: (leagueId: string | null) => void;
+  viewMode: ViewMode;
+  onViewChange: (mode: ViewMode) => void;
+}
+
+const LeftSidebar: React.FC<LeftSidebarProps> = ({ leagues, isOpen, toggleSidebar, activeLeagueId, onSelectLeague, viewMode, onViewChange }) => {
+  
+  const handleSelectLeague = (id: string | null) => {
+    onSelectLeague(id);
+    onViewChange('ALL'); // Reset view mode when selecting a specific league
+    if (window.innerWidth < 768) {
+        toggleSidebar(); 
+    }
+  };
+
+  const handleSelectView = (mode: ViewMode) => {
+      onViewChange(mode);
+      onSelectLeague(null); // Clear league filter when selecting a main menu item
+      if (window.innerWidth < 768) {
+          toggleSidebar();
+      }
+  }
+
+  return (
+    <>
+      {/* Mobile Overlay - z-40 to sit below sidebar (z-50) but above content (z-30) */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={toggleSidebar}
+        />
+      )}
+
+      {/* Sidebar Drawer - z-50 to ensure it is always on top */}
+      <div className={`
+        fixed top-0 left-0 h-full w-64 bg-slate-900 border-r border-slate-800 z-50 transform transition-transform duration-300 ease-in-out
+        ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+        md:translate-x-0 md:static md:block
+      `}>
+        <div className="flex items-center gap-3 px-4 h-16 border-b border-slate-800">
+          <div className="w-8 h-8 bg-gradient-to-tr from-hoops-orange to-red-500 rounded flex items-center justify-center text-white font-black italic">
+            H
+          </div>
+          <span className="text-xl font-bold tracking-tight text-white">Hoops<span className="text-hoops-orange">Live</span></span>
+        </div>
+
+        <div className="p-4 overflow-y-auto h-[calc(100vh-64px)]">
+          
+          <div className="mb-6">
+             <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Menu</h3>
+             <ul className="space-y-1">
+               <li>
+                 <button 
+                    onClick={() => handleSelectView('ALL')}
+                    className={`w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded transition-colors ${viewMode === 'ALL' && !activeLeagueId ? 'bg-hoops-orange/10 text-hoops-orange' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
+                 >
+                    <Trophy size={16} /> All Games
+                 </button>
+               </li>
+               <li>
+                 <button 
+                    onClick={() => handleSelectView('SCHEDULED')}
+                    className={`w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded transition-colors ${viewMode === 'SCHEDULED' ? 'bg-hoops-orange/10 text-hoops-orange' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
+                 >
+                    <Calendar size={16} /> Schedule
+                 </button>
+               </li>
+               <li>
+                 <button 
+                    onClick={() => handleSelectView('FAVORITES')}
+                    className={`w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded transition-colors ${viewMode === 'FAVORITES' ? 'bg-hoops-orange/10 text-hoops-orange' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
+                 >
+                    <Star size={16} /> Favorites
+                 </button>
+               </li>
+             </ul>
+          </div>
+
+          <div className="mb-6">
+            <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Today's Leagues</h3>
+            {leagues.length === 0 ? (
+                <p className="text-xs text-slate-600 px-3 italic">No leagues scheduled</p>
+            ) : (
+                <ul className="space-y-1">
+                {leagues.map(league => (
+                    <li key={league.id}>
+                    <button 
+                        onClick={() => handleSelectLeague(league.id)}
+                        className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded transition-colors group ${activeLeagueId === league.id ? 'bg-slate-800 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}`}
+                    >
+                        <span className="opacity-70 group-hover:opacity-100 w-4 text-center">{league.flag || '🏀'}</span>
+                        <span className="truncate">{league.name}</span>
+                        {activeLeagueId === league.id && <CircleDot size={8} className="ml-auto text-hoops-orange fill-current" />}
+                    </button>
+                    </li>
+                ))}
+                </ul>
+            )}
+          </div>
+
+          {/* Ad Placeholder (Sidebar Square) */}
+          <div className="mt-auto">
+             <div className="px-2">
+                <AdUnit 
+                    slotId="DEMO_SLOT" // Replace with 250x250 Square Ad Slot ID
+                    format="rectangle"
+                    style={{ height: '250px', width: '100%' }}
+                    className="w-full h-[250px] bg-slate-850 rounded"
+                />
+             </div>
+             <p className="text-[10px] text-center text-slate-600 mt-2">Sponsored Partner</p>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+// --- MAIN APP COMPONENT ---
 
 type ViewMode = 'ALL' | 'LIVE' | 'FINISHED' | 'SCHEDULED' | 'FAVORITES';
 
