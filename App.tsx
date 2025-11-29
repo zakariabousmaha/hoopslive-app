@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Menu, Search, Filter, Loader2, Wifi, WifiOff, CalendarDays, ChevronLeft, ChevronRight, X, User } from 'lucide-react';
-import { NavSidebar } from './components/NavSidebar';
+import { LeftSidebar } from './components/LeftSidebar';
 import { MobileNav } from './components/MobileNav';
 import { LeagueHeader } from './components/LeagueHeader';
 import { MatchRow } from './components/MatchRow';
@@ -455,7 +455,7 @@ const App: React.FC = () => {
 
       {/* --- DESKTOP: Permanent Sidebar (md:block) --- */}
       <nav aria-label="Main Navigation" role="navigation" className="hidden md:block">
-        <NavSidebar 
+        <LeftSidebar 
             leagues={uniqueLeagues} 
             isOpen={true} 
             toggleSidebar={() => {}} // No-op on desktop
@@ -482,7 +482,7 @@ const App: React.FC = () => {
 
       {/* --- MOBILE: Slide-out Sidebar Drawer (md:hidden) --- */}
       <div className={`md:hidden`}>
-         <NavSidebar 
+         <LeftSidebar 
             leagues={uniqueLeagues} 
             isOpen={sidebarOpen} 
             toggleSidebar={() => setSidebarOpen(!sidebarOpen)}
