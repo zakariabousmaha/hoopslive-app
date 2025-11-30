@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Menu, Search, Filter, Loader2, Wifi, WifiOff, CalendarDays, ChevronLeft, ChevronRight, X, User, Trophy, Calendar, Star, CircleDot } from 'lucide-react';
-import { MobileNav } from './components/MobileNav';
+import { Menu, Search, Filter, Loader2, Wifi, WifiOff, CalendarDays, ChevronLeft, ChevronRight, X, User, Trophy, Calendar, Star, CircleDot, Zap } from 'lucide-react';
 import { LeagueHeader } from './components/LeagueHeader';
 import { MatchRow } from './components/MatchRow';
 import { MatchDetails } from './components/MatchDetails';
@@ -15,6 +14,7 @@ import { getMatches, searchTeams, getTeamSchedule } from './services/basketballS
 
 // --- INTERNAL COMPONENTS (Moved here to fix Vercel Build Errors) ---
 
+// 1. LEFT SIDEBAR
 interface LeftSidebarProps {
   leagues: League[];
   isOpen: boolean;
@@ -135,6 +135,55 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ leagues, isOpen, toggleSideba
         </div>
       </div>
     </>
+  );
+};
+
+// 2. MOBILE NAVIGATION
+interface MobileNavProps {
+  currentView: string;
+  onChangeView: (view: any) => void;
+  onMenuClick: () => void;
+}
+
+const MobileNav: React.FC<MobileNavProps> = ({ currentView, onChangeView, onMenuClick }) => {
+  const navItems = [
+    { id: 'ALL', icon: Trophy, label: 'Games' },
+    { id: 'LIVE', icon: Zap, label: 'Live' },
+    { id: 'SCHEDULED', icon: Calendar, label: 'Schedule' },
+    { id: 'FAVORITES', icon: Star, label: 'Favorites' },
+  ];
+
+  return (
+    <div className="md:hidden fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 pb-safe z-50 transition-all duration-300">
+      <div className="flex justify-around items-center h-16">
+        {navItems.map((item) => {
+          const isActive = currentView === item.id;
+          const Icon = item.icon;
+
+          return (
+            <button
+              key={item.id}
+              onClick={() => onChangeView(item.id)}
+              className={`flex flex-col items-center justify-center w-full h-full space-y-1 touch-manipulation active:scale-95 transition-transform ${isActive ? 'text-hoops-orange' : 'text-slate-500 hover:text-slate-300'}`}
+              style={{ minHeight: '44px', minWidth: '44px' }}
+            >
+              <Icon size={22} className={isActive ? 'fill-current' : ''} strokeWidth={isActive ? 2.5 : 2} />
+              <span className="text-[10px] font-medium">{item.label}</span>
+            </button>
+          );
+        })}
+        
+        {/* Sidebar Trigger */}
+        <button
+          onClick={onMenuClick}
+          className="flex flex-col items-center justify-center w-full h-full space-y-1 text-slate-500 hover:text-slate-300 touch-manipulation active:scale-95 transition-transform"
+          style={{ minHeight: '44px', minWidth: '44px' }}
+        >
+          <Menu size={22} />
+          <span className="text-[10px] font-medium">Leagues</span>
+        </button>
+      </div>
+    </div>
   );
 };
 
