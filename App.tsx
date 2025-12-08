@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { Menu, Search, Loader2, CalendarDays, ChevronLeft, ChevronRight, X, Trophy, Calendar, Star, CircleDot, Zap } from 'lucide-react';
 import { LeagueHeader } from './components/LeagueHeader';
@@ -11,8 +12,9 @@ import { TeamLogo } from './components/TeamLogo';
 import { Match, League, MatchStatus, TeamSearchResult } from './types';
 import { getMatches, searchTeams, getTeamSchedule } from './services/basketballService';
 
+// FORCE_UPDATE_ID: 2025_FIX_BUILD_ERROR
+
 // --- INTERNAL COMPONENTS ---
-// Renamed to avoid any conflict with external file references
 
 // 1. SIDEBAR (Internal)
 interface InternalSidebarProps {
@@ -134,7 +136,7 @@ const InternalSidebar: React.FC<InternalSidebarProps> = ({ leagues, isOpen, togg
   );
 };
 
-// 2. BOTTOM NAVIGATION (Internal - Renamed from MobileNav)
+// 2. BOTTOM NAVIGATION (Internal)
 interface BottomNavProps {
   currentView: string;
   onChangeView: (view: any) => void;
