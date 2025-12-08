@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Menu, Search, Filter, Loader2, Wifi, WifiOff, CalendarDays, ChevronLeft, ChevronRight, X, User, Trophy, Calendar, Star, CircleDot, Zap } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Menu, Search, Loader2, CalendarDays, ChevronLeft, ChevronRight, X, Trophy, Calendar, Star, CircleDot, Zap } from 'lucide-react';
 import { LeagueHeader } from './components/LeagueHeader';
 import { MatchRow } from './components/MatchRow';
 import { MatchDetails } from './components/MatchDetails';
@@ -8,14 +8,14 @@ import { StickyAdRail } from './components/StickyAdRail';
 import { AdUnit } from './components/AdUnit';
 import { SeoHead } from './components/SeoHead';
 import { TeamLogo } from './components/TeamLogo';
-import { MOCK_LEAGUES } from './constants';
 import { Match, League, MatchStatus, TeamSearchResult } from './types';
 import { getMatches, searchTeams, getTeamSchedule } from './services/basketballService';
 
-// --- INTERNAL COMPONENTS (Moved here to fix Vercel Build Errors) ---
+// --- INTERNAL COMPONENTS ---
+// Renamed to avoid any conflict with external file references
 
-// 1. LEFT SIDEBAR
-interface LeftSidebarProps {
+// 1. SIDEBAR (Internal)
+interface InternalSidebarProps {
   leagues: League[];
   isOpen: boolean;
   toggleSidebar: () => void;
@@ -25,11 +25,11 @@ interface LeftSidebarProps {
   onViewChange: (mode: ViewMode) => void;
 }
 
-const LeftSidebar: React.FC<LeftSidebarProps> = ({ leagues, isOpen, toggleSidebar, activeLeagueId, onSelectLeague, viewMode, onViewChange }) => {
+const InternalSidebar: React.FC<InternalSidebarProps> = ({ leagues, isOpen, toggleSidebar, activeLeagueId, onSelectLeague, viewMode, onViewChange }) => {
   
   const handleSelectLeague = (id: string | null) => {
     onSelectLeague(id);
-    onViewChange('ALL'); // Reset view mode when selecting a specific league
+    onViewChange('ALL');
     if (window.innerWidth < 768) {
         toggleSidebar(); 
     }
@@ -37,7 +37,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ leagues, isOpen, toggleSideba
 
   const handleSelectView = (mode: ViewMode) => {
       onViewChange(mode);
-      onSelectLeague(null); // Clear league filter when selecting a main menu item
+      onSelectLeague(null);
       if (window.innerWidth < 768) {
           toggleSidebar();
       }
@@ -45,7 +45,6 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ leagues, isOpen, toggleSideba
 
   return (
     <>
-      {/* Mobile Overlay - z-40 to sit below sidebar (z-50) but above content (z-30) */}
       {isOpen && (
         <div 
           className="fixed inset-0 bg-black/50 z-40 md:hidden"
@@ -53,7 +52,6 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ leagues, isOpen, toggleSideba
         />
       )}
 
-      {/* Sidebar Drawer - z-50 to ensure it is always on top */}
       <div className={`
         fixed top-0 left-0 h-full w-64 bg-slate-900 border-r border-slate-800 z-50 transform transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
@@ -67,7 +65,6 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ leagues, isOpen, toggleSideba
         </div>
 
         <div className="p-4 overflow-y-auto h-[calc(100vh-64px)]">
-          
           <div className="mb-6">
              <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Menu</h3>
              <ul className="space-y-1">
@@ -120,11 +117,10 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ leagues, isOpen, toggleSideba
             )}
           </div>
 
-          {/* Ad Placeholder (Sidebar Square) */}
           <div className="mt-auto">
              <div className="px-2">
                 <AdUnit 
-                    slotId="DEMO_SLOT" // Replace with 250x250 Square Ad Slot ID
+                    slotId="DEMO_SLOT"
                     format="rectangle"
                     style={{ height: '250px', width: '100%' }}
                     className="w-full h-[250px] bg-slate-850 rounded"
@@ -138,14 +134,14 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ leagues, isOpen, toggleSideba
   );
 };
 
-// 2. MOBILE NAVIGATION
-interface MobileNavProps {
+// 2. BOTTOM NAVIGATION (Internal - Renamed from MobileNav)
+interface BottomNavProps {
   currentView: string;
   onChangeView: (view: any) => void;
   onMenuClick: () => void;
 }
 
-const MobileNav: React.FC<MobileNavProps> = ({ currentView, onChangeView, onMenuClick }) => {
+const BottomNav: React.FC<BottomNavProps> = ({ currentView, onChangeView, onMenuClick }) => {
   const navItems = [
     { id: 'ALL', icon: Trophy, label: 'Games' },
     { id: 'LIVE', icon: Zap, label: 'Live' },
@@ -173,7 +169,6 @@ const MobileNav: React.FC<MobileNavProps> = ({ currentView, onChangeView, onMenu
           );
         })}
         
-        {/* Sidebar Trigger */}
         <button
           onClick={onMenuClick}
           className="flex flex-col items-center justify-center w-full h-full space-y-1 text-slate-500 hover:text-slate-300 touch-manipulation active:scale-95 transition-transform"
@@ -197,19 +192,16 @@ const App: React.FC = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showCalendar, setShowCalendar] = useState(false);
   
-  // Filter State
   const [viewMode, setViewMode] = useState<ViewMode>('ALL');
   const [selectedLeagueId, setSelectedLeagueId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   
-  // Search State
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [searchResults, setSearchResults] = useState<TeamSearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [selectedTeamProfile, setSelectedTeamProfile] = useState<{ details: TeamSearchResult, matches: Match[] } | null>(null);
   const [loadingProfile, setLoadingProfile] = useState(false);
 
-  // Favorites State
   const [favorites, setFavorites] = useState<Set<string>>(() => {
       try {
           const saved = localStorage.getItem('hoops_favorites');
@@ -219,12 +211,10 @@ const App: React.FC = () => {
       }
   });
 
-  // Data State
   const [matches, setMatches] = useState<Match[]>([]);
   const [loading, setLoading] = useState(true);
   const [isRealData, setIsRealData] = useState(false);
 
-  // Debounce Search Input
   useEffect(() => {
     const timer = setTimeout(() => {
         setDebouncedSearch(searchQuery);
@@ -232,11 +222,10 @@ const App: React.FC = () => {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // Execute Search
   useEffect(() => {
       if (debouncedSearch.length >= 3) {
           setIsSearching(true);
-          setSelectedTeamProfile(null); // Clear profile if typing new search
+          setSelectedTeamProfile(null);
           searchTeams(debouncedSearch).then(results => {
               setSearchResults(results);
               setIsSearching(false);
@@ -246,11 +235,8 @@ const App: React.FC = () => {
       }
   }, [debouncedSearch]);
 
-  // Fetch data on mount or date change
   const fetchData = async () => {
-      // Don't show loading spinner on background refreshes, only initial load
       if (matches.length === 0) setLoading(true);
-      
       try {
           const { matches: data, isLive } = await getMatches(currentDate);
           setMatches(data);
@@ -263,17 +249,13 @@ const App: React.FC = () => {
   };
 
   useEffect(() => {
-    setSelectedLeagueId(null); // Reset filter on new date
-    // setSearchQuery(''); // Don't reset search on date change if user is searching
+    setSelectedLeagueId(null);
     fetchData();
-
-    // Smart Auto-Refresh: Only poll if tab is visible
     const interval = setInterval(() => {
         if (document.visibilityState === 'visible') {
             fetchData();
         }
-    }, 60000); // Update every minute
-
+    }, 60000);
     return () => clearInterval(interval);
   }, [currentDate]);
 
@@ -313,27 +295,17 @@ const App: React.FC = () => {
       const schedule = await getTeamSchedule(team.id);
       setSelectedTeamProfile({ details: team, matches: schedule });
       setLoadingProfile(false);
-      // We keep search query active so user can go back to results, or we clear it? 
-      // Better to clear results list view but keep profile active.
       setSearchResults([]); 
   }
 
-  // Helper to determine league importance for sorting
   const getLeaguePriority = (name: string, country: string): number => {
       const n = name.toLowerCase();
-      // Tier 1: The absolute top
       if (n === 'nba') return 1;
-      
-      // Tier 2: Major International
       if (n.includes('euroleague')) return 2;
       if (n.includes('world cup')) return 3;
       if (n.includes('olympics')) return 3;
-
-      // Tier 3: Secondary International / Major Domestic
       if (n.includes('eurocup')) return 4;
-      if (n.includes('champions league')) return 5; // BCL
-      
-      // Tier 4: Top Domestic Leagues (Spain, Turkey, France, Italy, Germany, Greece, Australia)
+      if (n.includes('champions league')) return 5;
       if (country === 'Spain' && (n.includes('acb') || n.includes('liga endesa'))) return 6;
       if (country === 'Turkey' && (n.includes('super') || n.includes('bsl'))) return 7;
       if (country === 'France' && (n.includes('betclic') || n.includes('pro a'))) return 8;
@@ -341,16 +313,11 @@ const App: React.FC = () => {
       if (country === 'Germany' && n.includes('bbl')) return 10;
       if (country === 'Greece' && n.includes('a1')) return 11;
       if (country === 'Australia' && n.includes('nbl')) return 12;
-
-      // Tier 5: NCAA / G-League
       if (n.includes('ncaa')) return 13;
       if (n.includes('g league')) return 14;
-
-      // Default: Alphabetical sort for the rest
       return 100;
   };
 
-  // Dynamically extract leagues from current matches for the sidebar
   const uniqueLeagues = useMemo(() => {
       const leaguesMap = new Map<string, League>();
       matches.forEach(m => {
@@ -364,20 +331,16 @@ const App: React.FC = () => {
               });
           }
       });
-      // Convert map values to array and sort by Priority first, then Name
       return Array.from(leaguesMap.values()).sort((a, b) => {
           if (a.priority !== b.priority) {
-              return a.priority - b.priority; // Lower number = Higher priority
+              return a.priority - b.priority;
           }
           return a.name.localeCompare(b.name);
       });
   }, [matches]);
 
-  // Main Filtering Logic (Only used when NOT searching)
   const filteredMatches = useMemo(() => {
       let result = matches;
-
-      // 1. Filter by View Mode
       if (viewMode === 'FAVORITES') {
           result = result.filter(m => favorites.has(m.id));
       } else if (viewMode === 'LIVE') {
@@ -387,16 +350,12 @@ const App: React.FC = () => {
       } else if (viewMode === 'SCHEDULED') {
           result = result.filter(m => m.status === MatchStatus.SCHEDULED);
       }
-
-      // 2. Filter by League (if specific league selected)
       if (selectedLeagueId) {
           result = result.filter(m => m.leagueId === selectedLeagueId);
       }
-
       return result;
   }, [matches, selectedLeagueId, viewMode, favorites]);
 
-  // Group filtered matches by league AND sort matches inside groups (Pin Favorites)
   const groupedMatches = useMemo(() => {
     const groups: { [key: string]: Match[] } = {};
     filteredMatches.forEach(match => {
@@ -406,16 +365,12 @@ const App: React.FC = () => {
       groups[match.leagueId].push(match);
     });
 
-    // Sort matches within each league: Favorites first, then Live, then Time
     Object.keys(groups).forEach(leagueId => {
         groups[leagueId].sort((a, b) => {
-            // Priority 1: Favorites
             const aFav = favorites.has(a.id);
             const bFav = favorites.has(b.id);
             if (aFav && !bFav) return -1;
             if (!aFav && bFav) return 1;
-
-            // Priority 2: Status
             return new Date(a.startTime).getTime() - new Date(b.startTime).getTime();
         });
     });
@@ -423,37 +378,28 @@ const App: React.FC = () => {
     return groups;
   }, [filteredMatches, favorites]);
 
-  // Sort the League Groups in the main view
   const sortedLeagueIds = useMemo(() => {
       return Object.keys(groupedMatches).sort((a, b) => {
           const leagueA = uniqueLeagues.find(l => l.id === a);
           const leagueB = uniqueLeagues.find(l => l.id === b);
-          
           const pA = leagueA ? leagueA.priority : 100;
           const pB = leagueB ? leagueB.priority : 100;
-
           if (pA !== pB) return pA - pB;
           return (leagueA?.name || '').localeCompare(leagueB?.name || '');
       });
   }, [groupedMatches, uniqueLeagues]);
 
-
   const handleMatchClick = (match: Match) => {
     setSelectedMatch(match);
   };
 
-  // Helper to find league info for headers
   const getLeagueInfo = (leagueId: string, leagueName: string) => {
       const found = uniqueLeagues.find(l => l.id === leagueId);
       if (found) return found;
       return { id: leagueId, name: leagueName, country: 'World', flag: '🏀', priority: 99 };
   }
 
-  // Format date for display
   const dateDisplay = currentDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-  const isFutureYear = currentDate.getFullYear() > new Date().getFullYear();
-
-  // Helper for active button class (Desktop Toolbar)
   const getFilterButtonClass = (mode: ViewMode) => {
       const isActive = viewMode === mode && !selectedLeagueId;
       return `text-xs font-bold px-3 py-1.5 rounded transition-all ${isActive ? 'bg-hoops-orange text-white shadow-lg shadow-orange-900/20' : 'text-slate-400 hover:text-white'}`;
@@ -463,9 +409,7 @@ const App: React.FC = () => {
     ? uniqueLeagues.find(l => l.id === selectedLeagueId)?.name || null 
     : null;
 
-  // --- RENDER HELPERS ---
   const renderMainContent = () => {
-      // 1. Team Profile Mode
       if (selectedTeamProfile) {
           const { details, matches } = selectedTeamProfile;
           const upcoming = matches.filter(m => new Date(m.startTime) > new Date()).sort((a,b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
@@ -507,7 +451,6 @@ const App: React.FC = () => {
           )
       }
 
-      // 2. Search Results Mode
       if (debouncedSearch.length >= 3 || searchResults.length > 0) {
           return (
               <div className="p-4">
@@ -548,7 +491,6 @@ const App: React.FC = () => {
           );
       }
       
-      // 3. Loading Initial Data
       if (loading && matches.length === 0) {
           return (
               <div className="flex flex-col items-center justify-center h-64 text-slate-500">
@@ -558,7 +500,6 @@ const App: React.FC = () => {
           );
       }
 
-      // 4. Default Live Scores Mode
       return (
         <>
             <div className="max-w-3xl mx-auto">
@@ -616,11 +557,9 @@ const App: React.FC = () => {
         matches={filteredMatches}
       />
 
-      {/* --- Sticky Ad Rails (Desktop Only - >1536px) --- */}
       <StickyAdRail position="left" />
       <StickyAdRail position="right" />
 
-      {/* Calendar Backdrop */}
       {showCalendar && (
         <div 
             className="fixed inset-0 z-40 bg-black/50 md:bg-transparent" 
@@ -628,12 +567,11 @@ const App: React.FC = () => {
         />
       )}
 
-      {/* --- DESKTOP: Permanent Sidebar (md:block) --- */}
       <nav aria-label="Main Navigation" role="navigation" className="hidden md:block">
-        <LeftSidebar 
+        <InternalSidebar 
             leagues={uniqueLeagues} 
             isOpen={true} 
-            toggleSidebar={() => {}} // No-op on desktop
+            toggleSidebar={() => {}} 
             activeLeagueId={selectedLeagueId}
             onSelectLeague={setSelectedLeagueId}
             viewMode={viewMode}
@@ -644,8 +582,7 @@ const App: React.FC = () => {
         />
       </nav>
 
-      {/* --- MOBILE: Bottom Navigation (md:hidden) --- */}
-      <MobileNav 
+      <BottomNav 
         currentView={viewMode} 
         onChangeView={(mode) => { 
             setViewMode(mode); 
@@ -655,9 +592,8 @@ const App: React.FC = () => {
         onMenuClick={() => setSidebarOpen(true)}
       />
 
-      {/* --- MOBILE: Slide-out Sidebar Drawer (md:hidden) --- */}
       <div className={`md:hidden`}>
-         <LeftSidebar 
+         <InternalSidebar 
             leagues={uniqueLeagues} 
             isOpen={sidebarOpen} 
             toggleSidebar={() => setSidebarOpen(!sidebarOpen)}
@@ -676,7 +612,6 @@ const App: React.FC = () => {
         />
       </div>
 
-      {/* --- Main Content Area --- */}
       <main className="flex-1 flex flex-col min-w-0 bg-slate-900 relative z-10 overflow-x-hidden" role="main">
         
         <h1 className="sr-only">
@@ -686,7 +621,6 @@ const App: React.FC = () => {
             }
         </h1>
 
-        {/* --- MOBILE HEADER: Search Only (md:hidden) --- */}
         <header className="flex items-center justify-between px-4 py-3 bg-slate-900 border-b border-slate-800 md:hidden">
             <span className="font-bold text-lg">Hoops<span className="text-hoops-orange">Live</span></span>
              <div className="relative w-1/2">
@@ -709,7 +643,6 @@ const App: React.FC = () => {
             </div>
         </header>
 
-        {/* --- DESKTOP TOOLBAR: Filters (hidden md:flex) --- */}
         <div className="hidden md:flex items-center justify-between px-6 py-4 bg-slate-900 border-b border-slate-800">
             <div className="flex items-center gap-4">
                 <button onClick={() => { setViewMode('ALL'); setSelectedLeagueId(null); clearSearchMode(); }} className={getFilterButtonClass('ALL')}>ALL GAMES</button>
@@ -740,7 +673,6 @@ const App: React.FC = () => {
             </div>
         </div>
 
-        {/* --- SHARED: Calendar Navigation (Only show if NOT in profile/search mode) --- */}
         {!selectedTeamProfile && !searchQuery && (
             <div className="flex items-center justify-between px-2 sm:px-4 py-2 bg-slate-850 border-b border-slate-800 text-xs font-medium text-slate-400 relative z-30">
                 <button 
@@ -781,15 +713,11 @@ const App: React.FC = () => {
             </div>
         )}
 
-        {/* --- DYNAMIC MAIN CONTENT --- */}
-        {/* pb-20 on mobile to clear bottom nav, pb-0 on desktop (md:pb-0) */}
         <div className="flex-1 overflow-y-auto pb-20 md:pb-0">
            {renderMainContent()}
         </div>
       </main>
 
-      {/* --- DESKTOP: Right Details Panel (xl:static) --- */}
-      {/* Changed from md:static to xl:static so tablets (768-1280) treat it as drawer to avoid squeeze */}
       <aside className={`
         fixed inset-y-0 right-0 w-full sm:w-96 bg-slate-900 z-[60] shadow-2xl transform transition-transform duration-300 ease-in-out border-l border-slate-800
         ${selectedMatch ? 'translate-x-0' : 'translate-x-full'}
@@ -802,7 +730,6 @@ const App: React.FC = () => {
   );
 };
 
-// Helper for dynamic flags based on country name
 function getCountryFlag(country: string): string {
     const map: Record<string, string> = {
         'USA': '🇺🇸', 'Spain': '🇪🇸', 'Turkey': '🇹🇷', 'Europe': '🇪🇺', 'France': '🇫🇷',
