@@ -1,65 +1,74 @@
 <!DOCTYPE html>
 <html lang="en-US">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <meta name="theme-color" content="#0f172a" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    
-    <!-- Primary Meta Tags -->
-    <title>NBA Live Scores, NCAA Basketball Results & Stats | HoopsLive</title>
-    <meta name="title" content="NBA Live Scores, NCAA Basketball Results & Stats | HoopsLive" />
-    <meta name="description" content="Get real-time NBA live scores, NCAA college basketball results, standings, and advanced AI stats. The fastest basketball scoreboard for US and global leagues." />
-    <meta name="keywords" content="NBA live scores, basketball scores, NCAA basketball, college basketball scores, NBA schedule, live sports updates, NBA standings, basketball stats, HoopsLive" />
-    
-    <link rel="manifest" href="/manifest.json" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ['Inter', 'sans-serif'],
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+  <!-- Primary Meta Tags -->
+  <title>NBA Live Scores, NCAA Basketball Results & Stats | HoopsLive</title>
+  <meta name="title" content="NBA Live Scores, NCAA Basketball Results & Stats | HoopsLive" />
+  <meta name="description"
+    content="Get real-time NBA live scores, NCAA college basketball results, standings, and advanced AI stats. The fastest basketball scoreboard for US and global leagues." />
+  <meta name="keywords"
+    content="NBA live scores, basketball scores, NCAA basketball, college basketball scores, NBA schedule, live sports updates, NBA standings, basketball stats, HoopsLive" />
+
+  <link rel="manifest" href="/manifest.json" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            slate: {
+              850: '#151f32', // Deep background
+              900: '#0f172a',
+              950: '#020617',
             },
-            colors: {
-              slate: {
-                850: '#151f32', // Deep background
-                900: '#0f172a',
-                950: '#020617',
-              },
-              hoops: {
-                orange: '#ff6b00',
-                accent: '#0ea5e9', // Sky blue for contrast
-              }
+            hoops: {
+              orange: '#ff6b00',
+              accent: '#0ea5e9', // Sky blue for contrast
             }
           }
         }
       }
-    </script>
-    <style>
-      body {
-        background-color: #0f172a; /* slate-900 */
-        color: #f1f5f9; /* slate-100 */
-        -webkit-tap-highlight-color: transparent;
-      }
-      /* Custom scrollbar for a cleaner look */
-      ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-      }
-      ::-webkit-scrollbar-track {
-        background: #1e293b;
-      }
-      ::-webkit-scrollbar-thumb {
-        background: #475569;
-        border-radius: 4px;
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        background: #64748b;
-      }
-    </style>
+    }
+  </script>
+  <style>
+    body {
+      background-color: #0f172a;
+      /* slate-900 */
+      color: #f1f5f9;
+      /* slate-100 */
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Custom scrollbar for a cleaner look */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #1e293b;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #475569;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #64748b;
+    }
+  </style>
   <script type="importmap">
 {
   "imports": {
@@ -74,23 +83,26 @@
   }
 }
 </script>
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js')
-        .then(registration => {
-          console.log('SW registered: ', registration);
-        })
-        .catch(registrationError => {
-          console.log('SW registration failed: ', registrationError);
-        });
-    });
-  }
-</script>
-<link rel="stylesheet" href="/index.css">
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(registration => {
+            console.log('SW registered: ', registration);
+          })
+          .catch(registrationError => {
+            console.log('SW registration failed: ', registrationError);
+          });
+      });
+    }
+  </script>
+  <link rel="stylesheet" href="/index.css">
+  <meta name="google-site-verification" content="i_0JAd1QN_xWaKvHCuQxA78OzOevfnVB9zCe3_T4iaM" />
 </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
-  </body>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+
 </html>
