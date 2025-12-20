@@ -1,0 +1,16 @@
+{
+  "short_name": "HoopsLive",
+  "name": "HoopsLive Basketball Scores",
+  "icons": [
+    {
+      "src": "https://cdn.lucide.dev/basketball.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192 512x512"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#0f172a",
+  "background_color": "#0f172a",
+  "orientation": "portrait"
+}

@@ -1,0 +1,2 @@
+API_KEY=your_google_gemini_key_here
+BASKETBALL_API_KEY=your_basketball_api_key_here

@@ -1,0 +1,5 @@
+{
+  "name": "HoopsLive AI",
+  "description": "A next-generation basketball live score application featuring real-time updates and AI-powered match analysis using Gemini.",
+  "requestFramePermissions": []
+}
